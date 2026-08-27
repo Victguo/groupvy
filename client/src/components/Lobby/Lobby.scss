@@ -1,0 +1,29 @@
+.lobby-box {
+  margin: auto 0;
+  padding: 28px 22px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.lobby-hint {
+  margin-bottom: 14px;
+}
+
+.lobby-deck {
+  margin-bottom: 16px;
+}
+
+.lobby-code {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  margin: 6px 0 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.participants-list {
+  margin-bottom: 20px;
+}

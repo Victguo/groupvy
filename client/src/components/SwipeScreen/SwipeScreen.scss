@@ -1,0 +1,51 @@
+.swipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.progress-pill.MuiChip-root {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.card-stack {
+  position: relative;
+  flex: 1;
+  min-height: 380px;
+  margin-bottom: 20px;
+}
+
+.empty-deck {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 30px;
+}
+
+.swipe-controls {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 10px;
+}
+
+.skip-btn.MuiFab-root {
+  background: var(--bg-elevated);
+  color: var(--danger);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.like-btn.MuiFab-root {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.waiting-text {
+  text-align: center;
+  min-height: 18px;
+}

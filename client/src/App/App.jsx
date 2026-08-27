@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import Home from './components/Home.jsx';
-import Lobby from './components/Lobby.jsx';
-import SwipeScreen from './components/SwipeScreen.jsx';
-import ResultsScreen from './components/ResultsScreen.jsx';
-import MatchToast from './components/MatchToast.jsx';
-import { socket } from './socket.js';
+import Home from '../components/Home/Home.jsx';
+import Lobby from '../components/Lobby/Lobby.jsx';
+import SwipeScreen from '../components/SwipeScreen/SwipeScreen.jsx';
+import ResultsScreen from '../components/ResultsScreen/ResultsScreen.jsx';
+import MatchToast from '../components/MatchToast/MatchToast.jsx';
+import { socket } from '../socket.js';
+import './App.scss';
 
 export default function App() {
   const [screen, setScreen] = useState('home');
@@ -74,7 +75,7 @@ export default function App() {
   }
 
   return (
-    <div id="app">
+    <div className="app-shell">
       {screen === 'home' && <Home onJoined={handleJoined} />}
       {screen === 'lobby' && (
         <Lobby

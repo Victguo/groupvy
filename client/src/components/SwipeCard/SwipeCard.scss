@@ -1,0 +1,105 @@
+.card-slot {
+  position: absolute;
+  inset: 0;
+  // Dimmed and top slots are always the same size/position (see SwipeCard.jsx), so a
+  // promoted card never has to change geometry — nothing to jump.
+}
+
+.swipe-card.MuiPaper-root {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  overflow: hidden;
+}
+
+.dim-scrim {
+  // Sits on top of the card's own (always fully opaque) content and fades out on
+  // promotion. Dimming this way instead of the card's own opacity means the card
+  // never becomes genuinely transparent, so whatever's stacked behind it — the next
+  // card, mounted directly behind at that same moment — can never show through.
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.45);
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.card-emoji {
+  font-size: 90px;
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.card-subtitle {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin: 0;
+}
+
+.swipe-card.has-poster {
+  padding: 0;
+  justify-content: flex-end;
+  align-items: stretch;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--bg-elevated);
+
+  .poster-overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 10%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+    padding: 60px 24px 26px;
+    border-radius: 0 0 24px 24px;
+    text-align: left;
+  }
+
+  .card-title {
+    font-size: 22px;
+    color: #fff;
+  }
+
+  .card-subtitle {
+    color: rgba(255, 255, 255, 0.75);
+  }
+}
+
+.stamp {
+  position: absolute;
+  top: 30px;
+  font-size: 22px;
+  font-weight: 900;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 3px solid;
+  opacity: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stamp-like {
+  right: 24px;
+  color: var(--success);
+  border-color: var(--success);
+  transform: rotate(12deg);
+}
+
+.stamp-skip {
+  left: 24px;
+  color: var(--danger);
+  border-color: var(--danger);
+  transform: rotate(-12deg);
+}

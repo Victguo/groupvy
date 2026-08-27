@@ -1,0 +1,22 @@
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+:root {
+  --bg: #12111a;
+  --bg-elevated: #1c1a29;
+  --accent: #ff5c8a;
+  --accent-2: #7c5cff;
+  --text: #f4f2fb;
+  --text-dim: #a9a5c0;
+  --success: #35d399;
+  --danger: #ff5c5c;
+  --radius: 20px;
+}
+
+.screen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}

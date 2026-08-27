@@ -1,5 +1,14 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import { Box, Paper, Typography } from '@mui/material';
+import './SwipeCard.scss';
 
+// Two-layer structure: the outer .card-slot owns the dimmed<->top promotion animation
+// (scale/opacity/z-index, plain CSS transition), and the inner .swipe-card (cardRef) is
+// the drag target, carrying only the drag/fly-off transform. Keeping them on separate
+// elements means starting a drag never has to interrupt or fight the promotion
+// animation — cardRef's own transform is always identity at rest, so disabling its
+// transition on mousedown has nothing to snap.
+//
 // Drag/fly-off animation is done via direct style mutation (not React state) so
 // dragging stays at native pointer-move speed instead of re-rendering every pixel.
 const SwipeCard = forwardRef(function SwipeCard({ item, isTop, dimmed, onCommit }, ref) {
@@ -78,35 +87,41 @@ const SwipeCard = forwardRef(function SwipeCard({ item, isTop, dimmed, onCommit 
     };
   }, [isTop, fly]);
 
-  const wrapperStyle = dimmed
-    ? { transform: 'scale(0.95) translateY(10px)', opacity: 0.6, zIndex: 0 }
-    : { zIndex: 1 };
+  // Dimmed and top are the same size/position — the dimmed card sits fully hidden
+  // directly behind the top one, so promoting it never changes its geometry and
+  // there's nothing to visually "pop" or jump.
+  //
+  // The "dim" look is a dark scrim drawn ON TOP of the card's own (always fully
+  // opaque) content, not the card's own opacity. If we faded the card's real opacity
+  // instead, it would be genuinely semi-transparent for that ~250ms, letting whatever
+  // is stacked directly behind it — the next card, freshly mounted at that exact
+  // moment — show through underneath. The scrim fades instead, so the card itself
+  // never lets anything behind it bleed through.
+  const slotStyle = { zIndex: dimmed ? 0 : 1 };
 
-  if (item.poster) {
-    return (
-      <div
-        ref={cardRef}
-        className="swipe-card has-poster"
-        style={{ ...wrapperStyle, backgroundImage: `url("${item.poster}")` }}
-      >
-        <div ref={likeRef} className="stamp stamp-like">Like</div>
-        <div ref={skipRef} className="stamp stamp-skip">Skip</div>
-        <div className="poster-overlay">
-          <h2 className="card-title">{item.title}</h2>
-          <p className="card-subtitle">{item.subtitle}</p>
-        </div>
-      </div>
-    );
-  }
+  const cardClassName = 'swipe-card' + (item.poster ? ' has-poster' : '');
+  const cardStyle = item.poster ? { backgroundImage: `url("${item.poster}")` } : undefined;
 
   return (
-    <div ref={cardRef} className="swipe-card" style={wrapperStyle}>
-      <div ref={likeRef} className="stamp stamp-like">Like</div>
-      <div ref={skipRef} className="stamp stamp-skip">Skip</div>
-      <div className="card-emoji">{item.emoji}</div>
-      <h2 className="card-title">{item.title}</h2>
-      <p className="card-subtitle">{item.subtitle}</p>
-    </div>
+    <Box className="card-slot" style={slotStyle}>
+      <Paper ref={cardRef} className={cardClassName} style={cardStyle}>
+        <Box ref={likeRef} className="stamp stamp-like">Like</Box>
+        <Box ref={skipRef} className="stamp stamp-skip">Skip</Box>
+        {item.poster ? (
+          <Box className="poster-overlay">
+            <Typography className="card-title" component="h2">{item.title}</Typography>
+            <Typography className="card-subtitle">{item.subtitle}</Typography>
+          </Box>
+        ) : (
+          <>
+            <Box className="card-emoji">{item.emoji}</Box>
+            <Typography className="card-title" component="h2">{item.title}</Typography>
+            <Typography className="card-subtitle">{item.subtitle}</Typography>
+          </>
+        )}
+        <Box className="dim-scrim" style={{ opacity: dimmed ? 1 : 0 }} />
+      </Paper>
+    </Box>
   );
 });
 

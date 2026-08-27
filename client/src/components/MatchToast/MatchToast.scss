@@ -1,0 +1,24 @@
+.match-toast {
+  width: min(92vw, 420px);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+}
+
+.match-toast-emoji {
+  font-size: 34px;
+}
+
+.match-toast-title {
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.match-toast-item {
+  font-size: 13px;
+  opacity: 0.9;
+}

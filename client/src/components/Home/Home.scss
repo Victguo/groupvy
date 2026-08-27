@@ -1,0 +1,71 @@
+.brand {
+  text-align: center;
+  margin-bottom: 24px;
+
+  &-mark {
+    font-size: 44px;
+  }
+
+  h1 {
+    margin: 4px 0 4px;
+    font-size: 30px;
+    letter-spacing: -0.5px;
+  }
+}
+
+.tagline {
+  color: var(--text-dim);
+  margin: 0;
+  font-size: 14px;
+}
+
+.home-panel {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+// MUI's FormControl base rule (.MuiFormControl-root { margin: 0 }) has the same
+// specificity and is injected after this stylesheet, so it wins cascade ties against
+// a bare `.home-field` rule. Compounding the selector beats it regardless of order.
+.home-field.MuiFormControl-root {
+  margin-bottom: 6px;
+}
+
+// The id lands on the native <input> itself (MUI forwards TextField's id there
+// directly), not on a wrapper — so this must target #code-input, not a descendant of it.
+#code-input {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.deck-options {
+  margin-bottom: 16px;
+}
+
+.deck-option.Mui-selected,
+.deck-option.Mui-selected:hover {
+  border-color: var(--accent);
+  background: rgba(255, 92, 138, 0.12);
+}
+
+.deck-option {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px !important;
+  margin-bottom: 8px;
+
+  .deck-emoji {
+    font-size: 22px;
+    margin-right: 10px;
+  }
+
+  .deck-name {
+    font-weight: 600;
+  }
+}
+
+.error-text {
+  min-height: 18px;
+  margin: 10px 0 0;
+  text-align: center;
+}
