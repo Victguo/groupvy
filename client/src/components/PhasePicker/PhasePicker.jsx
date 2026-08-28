@@ -27,7 +27,7 @@ const PHASE_COPY = {
   },
 };
 
-export default function PhasePicker({ roomCode, deckKey, deckLabel, phaseState, alreadyAnswered, isHost }) {
+export default function PhasePicker({ roomCode, deckKey, deckLabel, phaseState, alreadyAnswered, isHost, onLeave }) {
   const [options, setOptions] = useState({ genres: [], lengths: [], cuisines: [] });
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [picked, setPicked] = useState([]);
@@ -181,6 +181,10 @@ export default function PhasePicker({ roomCode, deckKey, deckLabel, phaseState, 
         {error && (
           <Typography className="phase-wait" variant="body2" color="error">{error}</Typography>
         )}
+
+        <Button className="phase-leave" size="small" color="error" onClick={onLeave}>
+          Leave room
+        </Button>
       </Paper>
     </Box>
   );

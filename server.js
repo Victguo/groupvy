@@ -252,6 +252,83 @@ async function advancePhase(code) {
   io.to(code).emit('game-started');
 }
 
+// Checks one card for a fresh match among the people actually here. Split out of the
+// swipe handler so a departure — which can complete a card without anyone swiping it —
+// can run the same check.
+function checkMatch(code, itemId) {
+  const room = rooms[code];
+  const likedBy = room.swipes[itemId];
+  if (!likedBy) return;
+  const active = activeIds(room);
+  // Checking that every active person is in the set, rather than comparing its size
+  // against the headcount: a departed player's id can linger in an older swipe set, so
+  // the size could exceed the number of people present and fire a match nobody agreed on.
+  if (active.length >= MIN_PARTICIPANTS && active.every((id) => likedBy.has(id)) && !room.matches.has(itemId)) {
+    room.matches.add(itemId);
+    io.to(code).emit('match', room.items.find((i) => i.id === itemId));
+  }
+}
+
+// Someone leaving can complete a card the rest of the room had already liked, with no
+// swipe left to notice — so a departure re-checks every card, not just the one a swipe
+// would have touched.
+function recheckMatches(code) {
+  const room = rooms[code];
+  for (const itemId of Object.keys(room.swipes)) checkMatch(code, itemId);
+}
+
+// Tells the room how far everyone active has gotten, and whether the deck is done for all
+// of them. Split out of the swipe handler so a departure — which can be what finishes the
+// deck for everyone still here — can trigger the same broadcast.
+function broadcastProgress(code) {
+  const room = rooms[code];
+  // Only the people actually here decide the end of the round. Someone who dropped off
+  // keeps their progress — it counts again the moment they're back — but the room
+  // doesn't stall waiting on them.
+  const active = activeIds(room);
+  const totalItems = room.items.length;
+  const everyoneDone =
+    active.length >= MIN_PARTICIPANTS && active.every((id) => (room.seenCount[id] || 0) >= totalItems);
+
+  io.to(code).emit('progress-update', {
+    progress: Object.fromEntries(active.map((id) => [room.participants[id].name, room.seenCount[id] || 0])),
+    totalItems,
+    everyoneDone,
+  });
+}
+
+// Everything that has to happen once someone stops counting, whether they dropped off or
+// walked out for good. The fate of the seat itself is the caller's business — this is
+// only the fan-out: reaping an empty room, handing off the host, and letting the rest of
+// the room know.
+function afterDeparture(code, pid) {
+  const room = rooms[code];
+  if (!room) return;
+
+  const remaining = activeIds(room);
+  if (remaining.length === 0) {
+    // Nobody left to tell, and no host to hand anything to — hold the room open long
+    // enough for a refresh to land, then bin it.
+    scheduleReap(code);
+    return;
+  }
+
+  // Hand the room to someone still in it, otherwise a creator who leaves leaves a room
+  // nobody is allowed to start. The promotion rides along on the room-update below, which
+  // is how the new host's client learns about it. Only when someone else is actually
+  // here: a host alone in their lobby keeps the room on refresh, since there's nobody to
+  // promote in their place.
+  if (pid === room.hostId) room.hostId = remaining[0];
+  io.to(code).emit('room-update', roomSummary(room));
+  // The person the room was waiting on may have been the one who just left, so a
+  // departure can be what completes a phase.
+  if (room.phase && everyoneAnswered(room)) {
+    advancePhase(code).catch((err) => console.error('Phase advance failed:', err));
+  } else if (room.phase) {
+    io.to(code).emit('phase-update', phaseState(room));
+  }
+}
+
 // Everything a client needs to render the room from scratch, whether it's arriving for
 // the first time or coming back from a refresh. One function so the create, join and
 // resume acks can't drift apart.
@@ -364,6 +441,10 @@ io.on('connection', (socket) => {
     room.participants[pid] = { name: displayName, connected: true, socketId: socket.id };
     room.seenCount[pid] = 0;
 
+    // The room can be hostless if whoever held it left for good before this join landed.
+    // First one back in takes it, otherwise nobody could ever start the round.
+    if (!room.participants[room.hostId]) room.hostId = pid;
+
     cb(sessionPayload(room, code, pid));
 
     io.to(code).emit('room-update', roomSummary(room));
@@ -436,34 +517,39 @@ io.on('connection', (socket) => {
 
     room.seenCount[pid] = (room.seenCount[pid] || 0) + 1;
 
-    // Only the people actually here decide a match or the end of the round. Someone who
-    // dropped off keeps their likes — they count again the moment they're back — but the
-    // room doesn't stall waiting on them.
-    const active = activeIds(room);
-
     if (liked) {
       if (!room.swipes[itemId]) room.swipes[itemId] = new Set();
       room.swipes[itemId].add(pid);
-
-      const likedBy = room.swipes[itemId];
-      // Checking that every active person is in the set, rather than comparing its size
-      // against the headcount: a departed player's id lingers in these sets, so the size
-      // can exceed the number of people present and fire a match nobody agreed on.
-      if (active.length >= 2 && active.every((id) => likedBy.has(id)) && !room.matches.has(itemId)) {
-        room.matches.add(itemId);
-        const item = room.items.find((i) => i.id === itemId);
-        io.to(code).emit('match', item);
-      }
     }
+    checkMatch(code, itemId);
+    broadcastProgress(code);
+  });
 
-    const totalItems = room.items.length;
-    const everyoneDone = active.length >= 2 && active.every((id) => (room.seenCount[id] || 0) >= totalItems);
+  // A hard departure, unlike a drop: the seat itself goes, and so does everything keyed
+  // to it — their likes stop counting, their phase answer stops shaping the deck, and the
+  // room shrinks around them rather than holding a place open for a resume that isn't
+  // coming.
+  socket.on('leave-room', (_payload, cb = () => {}) => {
+    const code = socket.data.code;
+    const room = rooms[code];
+    socket.data.code = null; // before anything else, so a lingering disconnect is a no-op
+    if (!room) return cb({ ok: true }); // already gone — a double tap is harmless
+    const pid = socket.data.playerId;
 
-    io.to(code).emit('progress-update', {
-      progress: Object.fromEntries(active.map((id) => [room.participants[id].name, room.seenCount[id] || 0])),
-      totalItems,
-      everyoneDone,
-    });
+    delete room.participants[pid];
+    delete room.seenCount[pid];
+    for (const likedBy of Object.values(room.swipes)) likedBy.delete(pid);
+    for (const answers of Object.values(room.picks)) delete answers[pid];
+
+    socket.leave(code);
+    // Removing this person can complete a card the rest of the room had already liked,
+    // or finish the deck for everyone still here — neither has a swipe left to notice it.
+    if (room.started && !room.phase) {
+      recheckMatches(code);
+      broadcastProgress(code);
+    }
+    afterDeparture(code, pid);
+    cb({ ok: true });
   });
 
   socket.on('disconnect', () => {
@@ -481,28 +567,7 @@ io.on('connection', (socket) => {
     room.participants[pid].connected = false;
     room.participants[pid].socketId = null;
 
-    const remaining = activeIds(room);
-    if (remaining.length === 0) {
-      // Nobody left to tell, and no host to hand anything to — hold the room open long
-      // enough for a refresh to land, then bin it.
-      scheduleReap(code);
-      return;
-    }
-
-    // Hand the room to someone still in it, otherwise a creator who closes their tab
-    // leaves a room nobody is allowed to start. The promotion rides along on the
-    // room-update below, which is how the new host's client learns about it. Only when
-    // someone else is actually here: a host alone in their lobby keeps the room on
-    // refresh, since there's nobody to promote in their place.
-    if (pid === room.hostId) room.hostId = remaining[0];
-    io.to(code).emit('room-update', roomSummary(room));
-    // The person the room was waiting on may have been the one who just left, so a
-    // disconnect can be what completes a phase.
-    if (room.phase && everyoneAnswered(room)) {
-      advancePhase(code).catch((err) => console.error('Phase advance failed:', err));
-    } else if (room.phase) {
-      io.to(code).emit('phase-update', phaseState(room));
-    }
+    afterDeparture(code, pid);
   });
 });
 

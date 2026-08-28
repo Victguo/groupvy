@@ -1,0 +1,14 @@
+// The default MuiButton padding (14px, fontSize 16) is sized for a full-width primary
+// action, not a compact pair of dialog buttons — dial both back here rather than in the
+// theme, since every other button in the app wants the bigger size.
+.confirm-dialog {
+  .MuiDialogActions-root {
+    padding: 8px 24px 20px;
+    gap: 8px;
+  }
+
+  .MuiDialogActions-root .MuiButton-root {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}

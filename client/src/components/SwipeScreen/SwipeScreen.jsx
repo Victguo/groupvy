@@ -1,12 +1,13 @@
 import { useRef } from 'react';
-import { Box, Chip, Fab, Typography } from '@mui/material';
+import { Box, Chip, Fab, IconButton, Stack, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import LogoutIcon from '@mui/icons-material/Logout';
 import SwipeCard from '../SwipeCard/SwipeCard.jsx';
 import { sendSwipe } from '../../socket.js';
 import './SwipeScreen.scss';
 
-export default function SwipeScreen({ roomCode, items, deckIndex, matchCount, waitingText, onAdvance }) {
+export default function SwipeScreen({ roomCode, items, deckIndex, matchCount, waitingText, onAdvance, onLeave }) {
   const topCardRef = useRef(null);
   const done = deckIndex >= items.length;
 
@@ -21,11 +22,16 @@ export default function SwipeScreen({ roomCode, items, deckIndex, matchCount, wa
   return (
     <Box component="section" className="screen">
       <Box component="header" className="swipe-header">
-        <Chip label={<>Room <strong>{roomCode}</strong></>} />
-        <Chip
-          className="progress-pill"
-          label={matchCount === 1 ? '1 match' : `${matchCount} matches`}
-        />
+        <Stack direction="row" gap={1}>
+          <Chip label={<>Room <strong>{roomCode}</strong></>} />
+          <Chip
+            className="progress-pill"
+            label={matchCount === 1 ? '1 match' : `${matchCount} matches`}
+          />
+        </Stack>
+        <IconButton className="leave-icon-btn" aria-label="Leave room" size="small" onClick={onLeave}>
+          <LogoutIcon fontSize="small" />
+        </IconButton>
       </Box>
 
       <Box className="card-stack">

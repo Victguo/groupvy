@@ -4,7 +4,7 @@ import './Lobby.scss';
 
 export default function Lobby({
   roomCode, deckLabel, participants,
-  isHost, hostName, minParticipants = 2, phases = [], onStart,
+  isHost, hostName, minParticipants = 2, phases = [], onStart, onLeave,
 }) {
   const [startError, setStartError] = useState('');
 
@@ -75,6 +75,10 @@ export default function Lobby({
         {startError && (
           <Typography className="lobby-wait" variant="body2" color="error">{startError}</Typography>
         )}
+
+        <Button className="leave-btn" size="small" color="error" onClick={onLeave}>
+          Leave room
+        </Button>
       </Paper>
     </Box>
   );

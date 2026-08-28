@@ -6,8 +6,10 @@ import PhasePicker from '../components/PhasePicker/PhasePicker.jsx';
 import SwipeScreen from '../components/SwipeScreen/SwipeScreen.jsx';
 import ResultsScreen from '../components/ResultsScreen/ResultsScreen.jsx';
 import MatchToast from '../components/MatchToast/MatchToast.jsx';
+import ConfirmDialog from '../components/ConfirmDialog/ConfirmDialog.jsx';
 import {
   clearSession,
+  leaveRoom,
   loadSession,
   playerId,
   resumeSession,
@@ -43,6 +45,9 @@ export default function App() {
   const [minParticipants, setMinParticipants] = useState(2);
   const [waitingText, setWaitingText] = useState('');
   const [toastItem, setToastItem] = useState(null);
+  // Whether the "are you sure" prompt is up — only shown for a leave mid-phase or
+  // mid-swipe, where there's actually something to lose.
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   // Mirrored in refs so the socket listeners (subscribed once) always see current values.
   const itemsRef = useRef(items);
@@ -184,6 +189,39 @@ export default function App() {
     setDeckIndex((i) => i + 1);
   }
 
+  // The lobby costs nothing to walk out of, and the results screen's round is already
+  // over — a selection phase or a deck in progress is the one worth a second tap.
+  function requestLeave() {
+    if (screen === 'lobby' || screen === 'results') resetToHome();
+    else setConfirmLeave(true);
+  }
+
+  // Tells the server the seat is vacated for good, then resets every bit of local room
+  // state back to what a fresh load starts with.
+  async function resetToHome() {
+    setConfirmLeave(false);
+    await leaveRoom();
+    clearSession();
+    // Before anything else reconnects — 'connect' resumes from this ref (see onConnect
+    // above), so clearing it is what stops a stray reconnect from putting us right back.
+    roomCodeRef.current = '';
+    setRoomCode('');
+    setDeckKey('');
+    setDeckLabel('');
+    setItems([]);
+    setDeckIndex(0);
+    setMatches([]);
+    setParticipants([]);
+    setIsHost(false);
+    setHostName('');
+    setPhases([]);
+    setPhaseState(null);
+    setPhaseAnswered(false);
+    setWaitingText('');
+    setToastItem(null);
+    setScreen('home');
+  }
+
   return (
     <div className="app-shell">
       {/* Reclaiming a seat after a reload. Brief — one round trip — but without it the
@@ -205,6 +243,7 @@ export default function App() {
           minParticipants={minParticipants}
           phases={phases}
           onStart={startGame}
+          onLeave={requestLeave}
         />
       )}
       {screen === 'phase' && phaseState && (
@@ -215,6 +254,7 @@ export default function App() {
           phaseState={phaseState}
           alreadyAnswered={phaseAnswered}
           isHost={isHost}
+          onLeave={requestLeave}
         />
       )}
       {screen === 'swipe' && (
@@ -225,19 +265,22 @@ export default function App() {
           matchCount={matches.length}
           waitingText={waitingText}
           onAdvance={handleAdvance}
+          onLeave={requestLeave}
         />
       )}
       {screen === 'results' && (
-        // Forget the room before reloading, or the resume on the way back up would drop
-        // us straight into the round we just finished instead of the home screen.
-        <ResultsScreen
-          matches={matches}
-          onRestart={() => {
-            clearSession();
-            window.location.reload();
-          }}
-        />
+        // The round is already over, so this leaves the room for real (tells the
+        // server, clears everything) rather than confirming first.
+        <ResultsScreen matches={matches} onRestart={requestLeave} />
       )}
+      <ConfirmDialog
+        open={confirmLeave}
+        title="Leave this round?"
+        body="You'll lose your place — matches so far are kept for everyone else, but your progress won't be."
+        confirmLabel="Leave"
+        onConfirm={resetToHome}
+        onCancel={() => setConfirmLeave(false)}
+      />
       <MatchToast item={toastItem} />
     </div>
   );

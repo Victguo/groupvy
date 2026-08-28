@@ -99,3 +99,10 @@ export function advancePhase() {
 export function sendSwipe(itemId, liked) {
   socket.emit('swipe', { itemId, liked });
 }
+
+// Vacates this tab's seat for good — the opposite of a drop, which holds it open. Resolves
+// once the server has removed us, so the caller can forget the stored session knowing a
+// stray reconnect can't put us back in.
+export function leaveRoom() {
+  return new Promise((resolve) => socket.emit('leave-room', {}, resolve));
+}
