@@ -1,0 +1,64 @@
+.phase-screen {
+  justify-content: center;
+}
+
+.phase-box {
+  margin: auto 0;
+  padding: 24px 22px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 35%);
+}
+
+.phase-step {
+  margin-top: 2px;
+}
+
+.phase-progress {
+  margin: 8px 0 18px;
+  border-radius: 999px;
+}
+
+// The top margin only shows through on a single-phase run, where there's no progress
+// bar above to space things out — against the bar it collapses into its 18px.
+.phase-title {
+  margin: 10px 0 6px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.phase-blurb {
+  margin-bottom: 16px;
+}
+
+// The genre list runs to ~19 chips, which overflows a phone screen on its own — cap it
+// and scroll rather than pushing the lock-in button below the fold.
+.phase-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  max-height: 42vh;
+  overflow-y: auto;
+}
+
+.phase-loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.phase-wait {
+  display: block;
+  margin-top: 12px;
+}
+
+.phase-locked {
+  display: block;
+  margin-top: 10px;
+}
+
+.phase-skip {
+  margin-top: 6px;
+}

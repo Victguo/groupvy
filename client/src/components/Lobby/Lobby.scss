@@ -2,7 +2,7 @@
   margin: auto 0;
   padding: 28px 22px;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 35%);
 }
 
 .lobby-hint {
@@ -19,11 +19,21 @@
   letter-spacing: 0.15em;
   margin: 6px 0 10px;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .participants-list {
   margin-bottom: 20px;
+}
+
+// Still in the room, just not on the end of a connection right now.
+.participant-away {
+  opacity: 0.55;
+}
+
+.lobby-wait {
+  display: block;
+  margin-top: 12px;
+  text-align: center;
 }

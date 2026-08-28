@@ -7,7 +7,7 @@
   }
 
   h1 {
-    margin: 4px 0 4px;
+    margin: 4px 0;
     font-size: 30px;
     letter-spacing: -0.5px;
   }
@@ -20,7 +20,7 @@
 }
 
 .home-panel {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 35%);
 }
 
 // MUI's FormControl base rule (.MuiFormControl-root { margin: 0 }) has the same
@@ -46,11 +46,11 @@
 .deck-option.Mui-selected,
 .deck-option.Mui-selected:hover {
   border-color: var(--accent);
-  background: rgba(255, 92, 138, 0.12);
+  background: rgb(255 92 138 / 12%);
 }
 
 .deck-option {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgb(255 255 255 / 8%);
   border-radius: 14px !important;
   margin-bottom: 8px;
 

@@ -1,6 +1,7 @@
 .card-slot {
   position: absolute;
   inset: 0;
+
   // Dimmed and top slots are always the same size/position (see SwipeCard.jsx), so a
   // promoted card never has to change geometry — nothing to jump.
 }
@@ -15,7 +16,7 @@
   justify-content: center;
   text-align: center;
   padding: 30px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 20%);
   touch-action: none;
   user-select: none;
   cursor: grab;
@@ -30,7 +31,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgb(0 0 0 / 45%);
   transition: opacity 0.25s ease;
   pointer-events: none;
 }
@@ -61,8 +62,8 @@
   background-color: var(--bg-elevated);
 
   .poster-overlay {
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 10%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
-    padding: 60px 24px 26px;
+    background: linear-gradient(to top, rgb(0 0 0 / 90%) 20%, rgb(0 0 0 / 55%) 65%, transparent 100%);
+    padding: 90px 24px 26px;
     border-radius: 0 0 24px 24px;
     text-align: left;
   }
@@ -73,8 +74,61 @@
   }
 
   .card-subtitle {
-    color: rgba(255, 255, 255, 0.75);
+    color: rgb(255 255 255 / 75%);
   }
+
+  .card-synopsis {
+    margin-top: 8px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: rgb(255 255 255 / 70%);
+
+    // Clamp instead of a fixed height so short and long synopses both look
+    // intentional — the card's height doesn't change either way.
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+.photo-progress {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.photo-segment {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 35%);
+
+  &.filled {
+    background: rgb(255 255 255 / 95%);
+  }
+}
+
+.photo-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.photo-zone-left {
+  left: 0;
+}
+
+.photo-zone-right {
+  right: 0;
 }
 
 .stamp {

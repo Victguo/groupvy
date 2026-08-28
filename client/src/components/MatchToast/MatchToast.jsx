@@ -13,7 +13,7 @@ export default function MatchToast({ item }) {
       <Paper className="match-toast">
         <Box className="match-toast-emoji">{item?.emoji ?? '🎉'}</Box>
         <Box>
-          <Typography className="match-toast-title">It's a match!</Typography>
+          <Typography className="match-toast-title">{`It's a match!`}</Typography>
           <Typography className="match-toast-item">{item?.title ?? ''}</Typography>
         </Box>
       </Paper>

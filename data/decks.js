@@ -1,5 +1,5 @@
 // Hardcoded starter/fallback decks. Movie and dinner have live sources (services/tmdb.js,
-// services/yelp.js) and only fall back to these when no API key is configured or the call fails.
+// services/googlePlaces.js) and only fall back to these when no API key is configured or the call fails.
 
 const decks = {
   dinner: {
@@ -42,6 +42,27 @@ const decks = {
       { id: 'm13', title: 'Reality TV', subtitle: 'Turn brain off completely', emoji: '📺' },
       { id: 'm14', title: 'Classic Film', subtitle: 'Something older than us', emoji: '🎞️' },
       { id: 'm15', title: 'Superhero', subtitle: 'Capes and cinematic universes', emoji: '🦸' },
+    ],
+  },
+  tv: {
+    label: 'What to binge',
+    emoji: '📺',
+    items: [
+      { id: 't1', title: 'Sitcom', subtitle: 'Half-hour laughs, low commitment', emoji: '😂' },
+      { id: 't2', title: 'Crime Drama', subtitle: 'Detectives, twists, red herrings', emoji: '🕵️' },
+      { id: 't3', title: 'Fantasy Epic', subtitle: 'Sprawling world, sprawling runtime', emoji: '🐉' },
+      { id: 't4', title: 'Sci-Fi Series', subtitle: 'Season-long mysteries', emoji: '🛸' },
+      { id: 't5', title: 'Reality Competition', subtitle: 'Vote someone off', emoji: '🏆' },
+      { id: 't6', title: 'Anime', subtitle: 'Subbed, dubbed, or fought about', emoji: '🎌' },
+      { id: 't7', title: 'Docuseries', subtitle: 'True stories, cliffhanger episodes', emoji: '🎥' },
+      { id: 't8', title: 'Teen Drama', subtitle: 'Way too much happens in one town', emoji: '💔' },
+      { id: 't9', title: 'Animated Series', subtitle: 'Not just for kids', emoji: '🎨' },
+      { id: 't10', title: 'Late Night', subtitle: 'Monologue and a couch', emoji: '🎙️' },
+      { id: 't11', title: 'Prestige Drama', subtitle: 'Award-bait, slow burn', emoji: '🏅' },
+      { id: 't12', title: 'Cooking Show', subtitle: 'Judges and a countdown clock', emoji: '👨‍🍳' },
+      { id: 't13', title: 'Sketch Comedy', subtitle: 'Hit or miss, every time', emoji: '🎭' },
+      { id: 't14', title: 'Soap Opera', subtitle: 'Amnesia, evil twins, repeat', emoji: '📼' },
+      { id: 't15', title: 'Limited Series', subtitle: 'One season, no filler', emoji: '⏳' },
     ],
   },
   activity: {

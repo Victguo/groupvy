@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Box, Paper, Typography } from '@mui/material';
 import './SwipeCard.scss';
 
@@ -15,6 +15,17 @@ const SwipeCard = forwardRef(function SwipeCard({ item, isTop, dimmed, onCommit 
   const cardRef = useRef(null);
   const likeRef = useRef(null);
   const skipRef = useRef(null);
+  // True once the current pointer gesture has moved past the tap threshold — lets the
+  // photo-zone click handler tell "tap to change photo" apart from "drag to swipe".
+  const draggedRef = useRef(false);
+
+  const images = item.images?.length ? item.images : item.poster ? [item.poster] : [];
+  const [photoIndex, setPhotoIndex] = useState(0);
+
+  function showNextPhoto(delta) {
+    if (draggedRef.current || images.length <= 1) return;
+    setPhotoIndex((i) => Math.max(0, Math.min(images.length - 1, i + delta)));
+  }
 
   const fly = useCallback(
     (liked) => {
@@ -39,6 +50,7 @@ const SwipeCard = forwardRef(function SwipeCard({ item, isTop, dimmed, onCommit 
 
     function onDown(e) {
       dragging = true;
+      draggedRef.current = false;
       card.style.transition = 'none';
       const p = e.touches ? e.touches[0] : e;
       startX = p.clientX;
@@ -49,6 +61,7 @@ const SwipeCard = forwardRef(function SwipeCard({ item, isTop, dimmed, onCommit 
       const p = e.touches ? e.touches[0] : e;
       dx = p.clientX - startX;
       dy = p.clientY - startY;
+      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) draggedRef.current = true;
       card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx / 12}deg)`;
       likeRef.current.style.opacity = Math.max(0, Math.min(1, dx / 80));
       skipRef.current.style.opacity = Math.max(0, Math.min(1, -dx / 80));
@@ -99,18 +112,33 @@ const SwipeCard = forwardRef(function SwipeCard({ item, isTop, dimmed, onCommit 
   // never lets anything behind it bleed through.
   const slotStyle = { zIndex: dimmed ? 0 : 1 };
 
-  const cardClassName = 'swipe-card' + (item.poster ? ' has-poster' : '');
-  const cardStyle = item.poster ? { backgroundImage: `url("${item.poster}")` } : undefined;
+  const hasImages = images.length > 0;
+  const cardClassName = 'swipe-card' + (hasImages ? ' has-poster' : '');
+  const cardStyle = hasImages ? { backgroundImage: `url("${images[photoIndex]}")` } : undefined;
 
   return (
     <Box className="card-slot" style={slotStyle}>
       <Paper ref={cardRef} className={cardClassName} style={cardStyle}>
+        {isTop && images.length > 1 && (
+          <Box className="photo-progress">
+            {images.map((_, i) => (
+              <Box key={i} className={'photo-segment' + (i <= photoIndex ? ' filled' : '')} />
+            ))}
+          </Box>
+        )}
+        {isTop && images.length > 1 && (
+          <>
+            <Box className="photo-zone photo-zone-left" onClick={() => showNextPhoto(-1)} />
+            <Box className="photo-zone photo-zone-right" onClick={() => showNextPhoto(1)} />
+          </>
+        )}
         <Box ref={likeRef} className="stamp stamp-like">Like</Box>
         <Box ref={skipRef} className="stamp stamp-skip">Skip</Box>
-        {item.poster ? (
+        {hasImages ? (
           <Box className="poster-overlay">
             <Typography className="card-title" component="h2">{item.title}</Typography>
             <Typography className="card-subtitle">{item.subtitle}</Typography>
+            {item.synopsis && <Typography className="card-synopsis">{item.synopsis}</Typography>}
           </Box>
         ) : (
           <>

@@ -36,13 +36,13 @@
 .skip-btn.MuiFab-root {
   background: var(--bg-elevated);
   color: var(--danger);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 25px rgb(0 0 0 / 35%);
 }
 
 .like-btn.MuiFab-root {
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: white;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 25px rgb(0 0 0 / 35%);
 }
 
 .waiting-text {

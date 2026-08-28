@@ -15,7 +15,7 @@ export default function ResultsScreen({ matches, onRestart }) {
   return (
     <Box component="section" className="screen">
       <Typography className="results-title" variant="h5" gutterBottom>
-        Here's what you both liked 🎉
+        {`Here's what you both liked 🎉`}
       </Typography>
 
       <List className="results-list">

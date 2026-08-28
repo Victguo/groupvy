@@ -32,8 +32,8 @@ export default function SwipeScreen({ roomCode, items, deckIndex, matchCount, wa
         {done ? (
           <Box className="empty-deck">
             <Typography color="text.secondary">
-              You've swiped through the whole deck.<br />
-              Waiting for everyone else to finish…
+              {`You've swiped through the whole deck.`}<br />
+              {`Waiting for everyone else to finish…`}
             </Typography>
           </Box>
         ) : (
